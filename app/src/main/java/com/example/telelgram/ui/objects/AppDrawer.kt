@@ -5,12 +5,13 @@ import android.net.Uri
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
 import com.example.telelgram.R
-import com.example.telelgram.ui.fragments.SettingsFragment
-import com.example.telelgram.utilits.USER
+import com.example.telelgram.ui.screens.contacts.ContactsFragment
+import com.example.telelgram.ui.screens.settings.SettingsFragment
+import com.example.telelgram.utilits.APP_ACTIVITY
+import com.example.telelgram.database.USER
+import com.example.telelgram.ui.screens.groups.AddContactsFragment
 import com.example.telelgram.utilits.downloadAndSetImage
 import com.example.telelgram.utilits.replaceFragment
 import com.mikepenz.materialdrawer.AccountHeader
@@ -24,7 +25,9 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
 import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader
 import com.mikepenz.materialdrawer.util.DrawerImageLoader
 
-class AppDrawer(val mainActivity: AppCompatActivity, val toolbar: Toolbar) {
+// реализует боковое меню Navigation Drawer
+
+class AppDrawer {
 
     private lateinit var mDrawer: Drawer
     private lateinit var mHeader: AccountHeader
@@ -32,6 +35,7 @@ class AppDrawer(val mainActivity: AppCompatActivity, val toolbar: Toolbar) {
     private lateinit var mCurrentProfile: ProfileDrawerItem
 
     fun create() {
+        // создание бокового меню
         initlLoader()
         createHeader()
         createDrawer()
@@ -39,27 +43,28 @@ class AppDrawer(val mainActivity: AppCompatActivity, val toolbar: Toolbar) {
     }
 
     fun disableDrawer() {
+        // отключение выдвигающего меню
         mDrawer.actionBarDrawerToggle?.isDrawerIndicatorEnabled = false
-        mainActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        APP_ACTIVITY.supportActionBar?.setDisplayHomeAsUpEnabled(true)
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-        toolbar.setNavigationOnClickListener {
-            mainActivity.supportFragmentManager.popBackStack()
+        APP_ACTIVITY.mToolbar.setNavigationOnClickListener {
+            APP_ACTIVITY.supportFragmentManager.popBackStack()
         }
     }
 
     fun enableDrawer() {
-        mainActivity.supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        APP_ACTIVITY.supportActionBar?.setDisplayHomeAsUpEnabled(false)
         mDrawer.actionBarDrawerToggle?.isDrawerIndicatorEnabled = true
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-        toolbar.setNavigationOnClickListener {
+        APP_ACTIVITY.mToolbar.setNavigationOnClickListener {
             mDrawer.openDrawer()
         }
     }
 
     private fun createDrawer() {
         mDrawer = DrawerBuilder()
-            .withActivity(mainActivity)
-            .withToolbar(toolbar)
+            .withActivity(APP_ACTIVITY)
+            .withToolbar(APP_ACTIVITY.mToolbar)
             .withActionBarDrawerToggle(true)
             .withSelectedItem(-1)
             .withAccountHeader(mHeader)
@@ -68,64 +73,57 @@ class AppDrawer(val mainActivity: AppCompatActivity, val toolbar: Toolbar) {
                     .withIconTintingEnabled(true)
                     .withName("Создать группу")
                     .withSelectable(false)
-                    .withIcon(R.drawable.instagram_logo),
+                    .withIcon(R.drawable.ic_menu_create_groups),
                 PrimaryDrawerItem().withIdentifier(102)
                     .withIconTintingEnabled(true)
                     .withName("Создать секретный чат")
                     .withSelectable(false)
-                    .withIcon(R.drawable.instagram_logo),
+                    .withIcon(R.drawable.ic_menu_secret_chat),
                 PrimaryDrawerItem().withIdentifier(103)
                     .withIconTintingEnabled(true)
                     .withName("Создать канал")
                     .withSelectable(false)
-                    .withIcon(R.drawable.instagram_logo),
+                    .withIcon(R.drawable.ic_menu_create_channel),
                 PrimaryDrawerItem().withIdentifier(104)
                     .withIconTintingEnabled(true)
                     .withName("Контакты")
                     .withSelectable(false)
-                    .withIcon(R.drawable.instagram_logo),
+                    .withIcon(R.drawable.ic_menu_contacts),
                 PrimaryDrawerItem().withIdentifier(105)
                     .withIconTintingEnabled(true)
                     .withName("Звонки")
                     .withSelectable(false)
-                    .withIcon(R.drawable.instagram_logo),
+                    .withIcon(R.drawable.ic_menu_phone),
                 PrimaryDrawerItem().withIdentifier(106)
                     .withIconTintingEnabled(true)
                     .withName("Избранное")
                     .withSelectable(false)
-                    .withIcon(R.drawable.instagram_logo),
+                    .withIcon(R.drawable.ic_menu_favorites),
                 PrimaryDrawerItem().withIdentifier(107)
                     .withIconTintingEnabled(true)
                     .withName("Настройки")
                     .withSelectable(false)
-                    .withIcon(R.drawable.instagram_logo),
+                    .withIcon(R.drawable.ic_menu_settings),
                 DividerDrawerItem(),
                 PrimaryDrawerItem().withIdentifier(108)
                     .withIconTintingEnabled(true)
                     .withName("Пригласить друзей")
                     .withSelectable(false)
-                    .withIcon(R.drawable.instagram_logo),
+                    .withIcon(R.drawable.ic_menu_invate),
                 PrimaryDrawerItem().withIdentifier(109)
                     .withIconTintingEnabled(true)
                     .withName("Вопросы о Telegram")
                     .withSelectable(false)
-                    .withIcon(R.drawable.instagram_logo)
+                    .withIcon(R.drawable.ic_menu_help)
             ).withOnDrawerItemClickListener(object : Drawer.OnDrawerItemClickListener {
                 override fun onItemClick(
                     view: View?,
                     position: Int, // кликенер показывает на какой пункт меню нажимаем
                     drawerItem: IDrawerItem<*>
                 ): Boolean {
-                    when (position) {
-//                        7 -> mainActivity.supportFragmentManager.beginTransaction()
-//                            .addToBackStack(null)
-//                            .replace(R.id.dataContainer,
-//                                SettingsFragment()
-//                            ).commit()  на
-                        7 -> mainActivity.replaceFragment(SettingsFragment())
-                    }
+                    clickToItem(position)
                     Toast.makeText(
-                        mainActivity.applicationContext,
+                        APP_ACTIVITY.applicationContext,
                         position.toString(),
                         Toast.LENGTH_SHORT
                     ).show()
@@ -135,6 +133,19 @@ class AppDrawer(val mainActivity: AppCompatActivity, val toolbar: Toolbar) {
             .build()
     }
 
+    private fun clickToItem(position: Int) {
+        when (position) {
+//                        7 -> mainActivity.supportFragmentManager.beginTransaction()
+//                            .addToBackStack(null)
+//                            .replace(R.id.dataContainer,
+//                                SettingsFragment()
+//                            ).commit()  на
+            1 -> replaceFragment(AddContactsFragment())
+            7 -> replaceFragment(SettingsFragment())
+            4 -> replaceFragment(ContactsFragment())
+        }
+    }
+
     private fun createHeader() {
         mCurrentProfile = ProfileDrawerItem()
             .withName(USER.fullname)
@@ -142,7 +153,7 @@ class AppDrawer(val mainActivity: AppCompatActivity, val toolbar: Toolbar) {
             .withIcon(USER.photoUrl)
             .withIdentifier(200)
         mHeader = AccountHeaderBuilder()
-            .withActivity(mainActivity)
+            .withActivity(APP_ACTIVITY)
             .withHeaderBackground(R.drawable.header)
             .addProfiles(
                 //заменен   ProfileDrawerItem().withName("Bob").withEmail("+7 999 101 11 22")
