@@ -5,7 +5,10 @@ import android.content.Intent
 import android.net.Uri
 import androidx.recyclerview.widget.RecyclerView
 import com.example.telelgram.R
+import com.example.telelgram.database.CHILD_PHOTO_URL
 import com.example.telelgram.database.createGroupToDatabase
+import com.example.telelgram.database.getUrlFromStorage
+import com.example.telelgram.database.putFileToStorage
 import com.example.telelgram.models.CommonModel
 import com.example.telelgram.ui.screens.base.BaseFragment
 import com.example.telelgram.ui.screens.main_list.MainListFragment

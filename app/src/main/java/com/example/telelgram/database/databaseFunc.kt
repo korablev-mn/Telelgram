@@ -6,6 +6,7 @@ import com.example.telelgram.models.CommonModel
 import com.example.telelgram.models.UserModel
 import com.example.telelgram.utilits.APP_ACTIVITY
 import com.example.telelgram.utilits.AppValueEventListener
+import com.example.telelgram.utilits.TYPE_GROUP
 import com.example.telelgram.utilits.showToast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -319,6 +320,7 @@ fun createGroupToDatabase(
     val mapData = hashMapOf<String, Any>()
     mapData[CHILD_ID] = keyGroup
     mapData[CHILD_FULLNAME] = nameGroup
+    mapData[CHILD_PHOTO_URL] = "empty"
     val mapMembers = hashMapOf<String, Any>()
     listContacts.forEach {
         mapMembers[it.id] = USER_MEMBER
@@ -327,14 +329,36 @@ fun createGroupToDatabase(
     mapData[NODE_MEMBERS] = mapMembers
     path.updateChildren(mapData)
         .addOnSuccessListener {
-            function()
             if (uri != Uri.EMPTY) {
                 putFileToStorage(uri, pathStorage) {
                     getUrlFromStorage(pathStorage) {
-                        path.child(CHILD_FILE_URL).setValue(it)
+                        path.child(CHILD_PHOTO_URL).setValue(it)
+                        addGroupsToMainList(mapData, listContacts){
+                            function()
+                        }
                     }
+                }
+            } else{
+                addGroupsToMainList(mapData, listContacts){
+                    function()
                 }
             }
         }
+        .addOnFailureListener { showToast(it.message.toString()) }
+}
+
+fun addGroupsToMainList(mapData: HashMap<String, Any>,
+                        listContacts: List<CommonModel>,
+                        function: () -> Unit) {
+    val path = REF_DATABASE_ROOT.child(NODE_MAIN_LIST)
+    val map = hashMapOf<String, Any>()
+
+    map[CHILD_ID] = mapData[CHILD_ID].toString()
+    map[CHILD_TYPE] = TYPE_GROUP
+    listContacts.forEach {
+        path.child(it.id).child(map[CHILD_ID].toString()).updateChildren(map)
+    }
+    path.child(UID).child(map[CHILD_ID].toString()).updateChildren(map)
+        .addOnSuccessListener { function() }
         .addOnFailureListener { showToast(it.message.toString()) }
 }

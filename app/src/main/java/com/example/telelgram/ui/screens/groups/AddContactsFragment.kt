@@ -12,7 +12,7 @@ class AddContactsFragment : BaseFragment(R.layout.fragment_add_contacts) {
 
     private lateinit var mRecyclerView: RecyclerView
     private lateinit var mAdapter: AddContactsAdapter
-    private val mRefMainList = REF_DATABASE_ROOT.child(NODE_MAIN_LIST).child(UID)
+    private val mRefContactsList = REF_DATABASE_ROOT.child(NODE_PHONES_CONTACTS).child(UID)
     private val mRefUsers = REF_DATABASE_ROOT.child(NODE_USERS)
     private val mRefMessages = REF_DATABASE_ROOT.child(NODE_MESSAGES).child(UID)
     private var mListItems = listOf<CommonModel>()
@@ -38,7 +38,7 @@ class AddContactsFragment : BaseFragment(R.layout.fragment_add_contacts) {
         mAdapter = AddContactsAdapter()
 
         // 1 запрос
-        mRefMainList.addListenerForSingleValueEvent(AppValueEventListener { data ->
+        mRefContactsList.addListenerForSingleValueEvent(AppValueEventListener { data ->
             mListItems = data.children.map { it.getCommonModel() }
             mListItems.forEach { model ->
                 // 2 запрос
